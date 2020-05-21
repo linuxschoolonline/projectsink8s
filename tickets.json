@@ -1,0 +1,25 @@
+{
+    "tickets": [
+        {
+            "ID": "001",
+            "Time": "21/05/2020",
+            "Title": "404 when browsing the users page",
+            "Description": "When navigating to /users, the page displays 404",
+            "Status": "open"
+        },
+        {
+            "ID": "002",
+            "Time": "20/05/2020",
+            "Title": "500 when browsing the users page",
+            "Description": "When navigating to /users, the page displays 500",
+            "Status": "closed"
+        },
+        {
+            "ID": "003",
+            "Time": "20/05/2020",
+            "Title": "500 when browsing the users page",
+            "Description": "When navigating to /users, the page displays 500",
+            "Status": "closed"
+        }
+    ]
+}
