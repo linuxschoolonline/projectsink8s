@@ -6,21 +6,19 @@ spec:
   selector:
     matchLabels:
       app: service-desk
-  replicas: 1
+  replicas: 5
   template:
     metadata:
       labels:
         app: service-desk
     spec:
-      volumes:
-      - name: tickets-vol
-        hostPath:
-            path: /tmp/hostpath-provisioner
-            type: Directory
       containers:
-      - name: service-desk
-        image: afakharany/servicedesk:1.1
-        volumeMounts:
-          - mountPath: /app/tickets.json
-            name: tickets-vol
-            subPath: "tickets.json"
+      - name: app
+        image: afakharany/servicedesk:mysql.1
+        env:
+        - name: db_user
+          value: "root"
+        - name: db_password
+          value: "root"
+        - name: db_host
+          value: "mysql-svc"
