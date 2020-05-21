@@ -1,29 +1,15 @@
-<!DOCTYPE html>
-
-<html>
-
-<head>
-    <meta charset="UTF-8">
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
-        integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
-
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css"
-        integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
-
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
-        integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
-        crossorigin="anonymous"></script>
-    <link rel="stylesheet" type="text/css" href="/static/stylesheets/home.css">
-
-    <!-- The welcome struct (shown in the main.go code) is received within the HTML and we just need to use the . operator and retrieve the information we want -->
-    <title>Welcome to our Service Desk</title>
-</head>
-
-<body>
+{{ define "content" }}
     <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="text-center">
+                    <img src="/images/logo.png" width="25%" height="25%" alt="">
+                </div>
+            </div>
+        </div>
+        {{ if not .Tickets }}
+        <div class="h3">There are no tickets on the database</div>
+        {{ else }}
         <div class="row">
             <div class="col-sm-12">
                 <h1>Current Tickets</h1>
@@ -35,7 +21,6 @@
                     <tr>
                         <th>ID</th>
                         <th>Title</th>
-                        <th>Description</th>
                         <th>Time</th>
                         <th>Status</th>
                     </tr>
@@ -43,17 +28,21 @@
                 <tbody>
                     {{ range .Tickets }}
                     <tr>
-                        <td>{{.ID}}</td>
+                        <td><a href="/tickets/{{.ID}}">{{.ID}}</a></td>
                         <td> {{.Title}} </td>
-                        <td> {{.Description}} </td>
                         <td> {{.Time}} </td>
-                        <td> {{.Status}} </td>
+                        <td>
+                            {{ if eq .Status "open" }}
+                            <span class="badge badge-warning">open</span>
+                            {{ else }}
+                            <span class="badge badge-success">closed</span>
+                            {{ end }}
+                        </td>
                     </tr>
                     {{ end }}
                 </tbody>
             </table>
         </div>
+        {{ end }}
     </div>
-</body>
-
-</html>
+{{end}}

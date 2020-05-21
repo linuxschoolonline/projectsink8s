@@ -1,0 +1,43 @@
+{{ define "content" }}
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="text-center">
+                    <img src="/images/logo.png" width="25%" height="25%" alt="">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <h1>Ticket {{ .ID }}: {{.Title}}</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <p>{{.Description}}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <small class="text-muted">Opened on {{.Time}}</small>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <ul class="list-inline">
+                    <li class="list-inline-item"><a href="/" class="badge badge-primary">Home</a></li>
+                    {{ if eq .Status "open"}}
+                    <li class="list-inline-item"><a href="close/{{.ID}}" class="badge badge-success">Close Ticket</a>
+                    </li>
+                    {{ end }}
+                    {{ if eq .Status "closed"}}
+                    <li class="list-inline-item"><a href="open/{{.ID}}" class="badge badge-warning">Reopen Ticket</a>
+                    </li>
+                    {{ end }}
+                    <li class="list-inline-item"><a href="delete/{{.ID}}" class="badge badge-danger">Delete Ticket</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{{ end }}
