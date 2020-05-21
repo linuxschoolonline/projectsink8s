@@ -107,5 +107,6 @@ func main() {
 	})
 	//  Handle static content
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./static/")))
+	log.Println("Server started on port 8080")
 	fmt.Println(http.ListenAndServe(":8080", r))
 }
