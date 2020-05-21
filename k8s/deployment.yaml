@@ -6,7 +6,7 @@ spec:
   selector:
     matchLabels:
       app: service-desk
-  replicas: 5
+  replicas: 1
   template:
     metadata:
       labels:
@@ -19,6 +19,9 @@ spec:
         - name: db_user
           value: "root"
         - name: db_password
-          value: "root"
+          valueFrom:
+            secretKeyRef:
+              name: dbpassword
+              key: dbpassword
         - name: db_host
           value: "mysql-svc"
