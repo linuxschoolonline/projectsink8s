@@ -1,14 +1,13 @@
 package main
 
 import (
-	"encoding/json"
+	"database/sql"
 	"fmt"
 	"html/template"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 )
 
@@ -26,28 +25,81 @@ type Tickets struct {
 	Tickets []Ticket `json:"tickets"`
 }
 
-func readJSON(f string) Tickets {
-	jsonFile, err := os.Open(f)
+var dbUser, dbPassword, dbHost string
+
+func setVariables() {
+	dbUser = os.Getenv("db_user")
+	dbPassword = os.Getenv("db_password")
+	dbHost = os.Getenv("db_host")
+}
+func readData() []Ticket {
+	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+dbHost+":3306)/tickets")
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err.Error())
 	}
-	defer jsonFile.Close()
-	var tickets Tickets
-	byteValue, _ := ioutil.ReadAll(jsonFile)
-	json.Unmarshal(byteValue, &tickets)
+	defer db.Close()
+	results, err := db.Query("SELECT id, t_title, t_desc, t_time, t_status FROM tickets")
+	if err != nil {
+		panic(err.Error())
+	}
+	var tickets []Ticket
+	for results.Next() {
+		var t Ticket
+		// for each row, scan the result into our tag composite object
+		err = results.Scan(&t.ID, &t.Title, &t.Description, &t.Time, &t.Status)
+		if err != nil {
+			panic(err.Error()) // proper error handling instead of panic in your app
+		}
+		tickets = append(tickets, t)
+	}
+
 	return tickets
 }
-func writeJSON(f string, t Tickets) {
-	file, _ := json.MarshalIndent(t, "", " ")
-	_ = ioutil.WriteFile(f, file, 0644)
+func deleteTicket(id string) {
+	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+dbHost+":3306)/tickets")
+	if err != nil {
+		log.Print(err.Error())
+	}
+	defer db.Close()
+	delForm, err := db.Prepare("DELETE FROM tickets WHERE id=?")
+	if err != nil {
+		panic(err.Error())
+	}
+	delForm.Exec(id)
+}
 
+func closeTicket(id string) {
+	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+dbHost+":3306)/tickets")
+	if err != nil {
+		log.Print(err.Error())
+	}
+	defer db.Close()
+	closeForm, err := db.Prepare("UPDATE tickets SET t_status = 'closed' WHERE id=?")
+	if err != nil {
+		panic(err.Error())
+	}
+	closeForm.Exec(id)
+}
+
+func openTicket(id string) {
+	db, err := sql.Open("mysql", dbUser+":"+dbPassword+"@tcp("+dbHost+":3306)/tickets")
+	if err != nil {
+		log.Print(err.Error())
+	}
+	defer db.Close()
+	closeForm, err := db.Prepare("UPDATE tickets SET t_status = 'open' WHERE id=?")
+	if err != nil {
+		panic(err.Error())
+	}
+	closeForm.Exec(id)
 }
 
 //Go application entrypoint
 func main() {
+	setVariables()
 	r := mux.NewRouter()
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		tickets := readJSON("tickets.json")
+		tickets := readData()
 		templates := template.Must(template.ParseFiles("templates/layout.html", "templates/home.html"))
 		if err := templates.ExecuteTemplate(w, "layout.html", tickets); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -55,9 +107,9 @@ func main() {
 	})
 	r.HandleFunc("/tickets/{id}", func(w http.ResponseWriter, r *http.Request) {
 		id := mux.Vars(r)["id"]
-		tickets := readJSON("tickets.json")
+		tickets := readData()
 		var ticket Ticket
-		for _, t := range tickets.Tickets {
+		for _, t := range tickets {
 			if t.ID == id {
 				ticket = t
 			}
@@ -73,36 +125,17 @@ func main() {
 	})
 	r.HandleFunc("/tickets/delete/{id}", func(w http.ResponseWriter, r *http.Request) {
 		id := mux.Vars(r)["id"]
-		tickets := readJSON("tickets.json")
-		var newTickets Tickets
-		for i, t := range tickets.Tickets {
-			if t.ID == id {
-				newTickets.Tickets = append(tickets.Tickets[:i], tickets.Tickets[i+1:]...)
-				writeJSON("tickets.json", newTickets)
-			}
-		}
+		deleteTicket(id)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	})
 	r.HandleFunc("/tickets/close/{id}", func(w http.ResponseWriter, r *http.Request) {
 		id := mux.Vars(r)["id"]
-		tickets := readJSON("tickets.json")
-		for i, t := range tickets.Tickets {
-			if t.ID == id {
-				tickets.Tickets[i].Status = "closed"
-				writeJSON("tickets.json", tickets)
-			}
-		}
+		closeTicket(id)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	})
 	r.HandleFunc("/tickets/open/{id}", func(w http.ResponseWriter, r *http.Request) {
 		id := mux.Vars(r)["id"]
-		tickets := readJSON("tickets.json")
-		for i, t := range tickets.Tickets {
-			if t.ID == id {
-				tickets.Tickets[i].Status = "open"
-				writeJSON("tickets.json", tickets)
-			}
-		}
+		openTicket(id)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	})
 	//  Handle static content

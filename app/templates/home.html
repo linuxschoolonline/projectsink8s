@@ -7,7 +7,7 @@
                 </div>
             </div>
         </div>
-        {{ if not .Tickets }}
+        {{ if not . }}
         <div class="h3">There are no tickets on the database</div>
         {{ else }}
         <div class="row">
@@ -26,7 +26,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{ range .Tickets }}
+                    {{ range . }}
                     <tr>
                         <td><a href="/tickets/{{.ID}}">{{.ID}}</a></td>
                         <td> {{.Title}} </td>
