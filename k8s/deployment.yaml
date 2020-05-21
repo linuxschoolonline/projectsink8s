@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-desk
+spec:
+  selector:
+    matchLabels:
+      app: service-desk
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: service-desk
+    spec:
+      containers:
+      - name: service-desk
+        image: afakharany/servicedesk:1.0
