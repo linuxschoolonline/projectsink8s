@@ -19,7 +19,7 @@ spec:
             type: Directory
       containers:
       - name: service-desk
-        image: afakharany/servicedesk:1.0
+        image: afakharany/servicedesk:1.1
         volumeMounts:
           - mountPath: /app/tickets.json
             name: tickets-vol
