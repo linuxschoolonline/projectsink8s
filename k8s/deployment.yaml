@@ -12,6 +12,15 @@ spec:
       labels:
         app: service-desk
     spec:
+      volumes:
+      - name: tickets-vol
+        hostPath:
+            path: /tmp/hostpath-provisioner
+            type: Directory
       containers:
       - name: service-desk
         image: afakharany/servicedesk:1.0
+        volumeMounts:
+          - mountPath: /app/tickets.json
+            name: tickets-vol
+            subPath: "tickets.json"
