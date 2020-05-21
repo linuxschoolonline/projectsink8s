@@ -15,3 +15,11 @@ spec:
       containers:
       - name: service-desk
         image: afakharany/servicedesk:1.0
+        volumeMounts:
+          - name: tickets
+            mountPath: /app/tickets.json
+            subPath: tickets.json
+      volumes:
+        - name: tickets
+          configMap:
+            name: tickets      
