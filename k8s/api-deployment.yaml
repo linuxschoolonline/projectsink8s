@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-desk-api
+spec:
+  selector:
+    matchLabels:
+      app: service-desk-api
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: service-desk-api
+    spec:
+      containers:
+      - name: app
+        image: afakharany/servicedesk:api
+        env:
+        - name: db_user
+          value: "root"
+        - name: db_password
+          valueFrom:
+            secretKeyRef:
+              name: dbpassword
+              key: dbpassword
+        - name: db_host
+          value: "mysql-svc"
